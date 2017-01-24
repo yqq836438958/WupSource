@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="libwup" default="build">
+	
+	<property name="output_dir" value="${basedir}/bin" />
+	
+	<delete dir="${output_dir}" />
+	<mkdir dir="${output_dir}" />
+	
+	<property name="final.out.absolute.dir" value="${output_dir}" />
+	
+	<property name="build_wup_dir" value="wup_v2" />
+	
+	<!-- 转移目录后先保持对wup_v1的编译 -->	
+	<target name="build">
+		<ant antfile="build.xml" target="build" dir="${build_wup_dir}" />
+		<copy todir="${output_dir}" overwrite="true">
+			<fileset dir="${basedir}/${build_wup_dir}/bin" />
+		</copy>
+	</target>
+	
+	<target name="build_debug">
+		<ant antfile="build.xml" target="build_debug" dir="${build_wup_dir}" />
+		<copy todir="${output_dir}" overwrite="true">
+			<fileset dir="${basedir}/${build_wup_dir}/bin" />
+		</copy>
+	</target>
+</project>

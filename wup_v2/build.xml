@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="jar_builder" basedir="." default="build" >
+
+    <!--
+            这个build.xml是整个项目编译的入口，build_common.xml是具体的编译实现
+         （为了修改和删除代码，所以脚本会让实现的逻辑在temp空间内进行，而不影响正式的代码）
+    -->
+
+    <target name="-pre-build">
+        <delete dir="bin" />
+        <delete dir="temp" />
+        <mkdir dir="temp" />
+        <mkdir dir="bin" />
+        <copy todir="temp" filtering="true">
+            <fileset dir=".">
+                <exclude name="**/.svn/**" />
+                <exclude name="**/.settings/**" />
+                <exclude name="**/gen/**" />
+                <exclude name="**/.git/**" />
+                <exclude name="**/.idea/**" />
+                <exclude name="**/out/**" />
+                <exclude name="**/bin/**" />
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="build" depends="-pre-build">
+        <ant antfile="build_common.xml" dir="temp"/>
+        <copy todir="bin" filtering="true" >
+            <fileset dir="temp/bin"/>
+        </copy>
+        <delete dir="temp" />
+    </target>
+
+    <target name="build_debug" depends="-pre-build">
+        <ant antfile="build_common.xml" dir="temp" target="build_debug"/>
+        <copy todir="bin" filtering="true" >
+            <fileset dir="temp/bin"/>
+        </copy>
+        <delete dir="temp" />
+    </target>
+</project>

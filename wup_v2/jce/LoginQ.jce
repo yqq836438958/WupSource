@@ -1,0 +1,103 @@
+#include "/home/tafjce/TRom/TRomComm/TRomComm.jce"
+#include "/home/tafjce/TRom/TRomComm/TRom4Server.jce"
+
+module TRom
+{
+
+enum ELOGINRET
+{
+    E_QUA_ERROR = -1,       //qua格式错误
+    E_QUA_SN_UNCONF = -2,   //qua没有配置
+};
+
+// 服务器接入点IP类型
+enum EIPType
+{
+    WUPPROXY        = 1,    // wupproxy服务IP    
+    PUSHSOCKET      = 2,    // PushSocket服务器IP
+    WUPSOCKET       = 3,    // wupsocket服务IP
+};
+
+enum EAPNTYPE
+{
+    APN_UNKNOWN  = 0,    
+    APN_CMWAP    = 1,                   
+    APN_CMNET    = 2,                   
+    APN_UNWAP    = 3,                   
+    APN_UNNET    = 4,                   
+    APN_CTWAP    = 5,                   
+    APN_CTNET    = 6,                   
+    APN_3GWAP    = 7,                  
+    APN_3GNET    = 8,                      
+};
+
+enum ENETTYPE
+{
+    NET_UNKNOWN  = 0,
+    NET_WIFI     = 1,
+    NET_2G       = 2,                   
+    NET_3G       = 3,                   
+    NET_4G       = 4,
+};
+
+struct HostInfo
+{
+    0 optional string  sIp;      //ip
+    2 optional EIPType eIpType;  //iptype
+    3 optional int     iZoneId;  //所在城市ID
+    4 optional int     iIDCId;   //IDC的ID
+    5 optional string  sOper;    //运营商的ID
+};
+
+struct IDCInfo
+{
+    0 optional int      iIDCId;
+    1 optional int      iWeight;
+    2 optional int      iZoneId;  //关联的zoneId
+};
+
+struct LoginReq
+{
+    0 optional RomBaseInfo     stBaseInfo;    
+    1 optional string          sMac;
+};
+
+struct LoginRsp
+{
+    0 optional vector<byte> vGUID;
+};
+
+struct JoinIPInfo
+{
+    0 optional EIPType eIPType;                      // 接入点类型，请参照JoinIPType
+    1 optional vector<string> vIPList;               // 服务器IP地址:端口集合(每个值为IP:port的形式，如：120.196.211.203:8080)
+    2 optional EAPNTYPE eApnType;                    // 客户端的APN接入类型
+    3 optional ENETTYPE eNetType;
+};
+
+struct IPListReq
+{
+    0 optional vector<byte>     vGUID;
+    1 optional vector<EIPType>  vIPType;         // 客户端需要请求的服务列表类型
+    2 optional EAPNTYPE         eApnType;        // 客户端的APN接入类型   
+    3 optional ENETTYPE         eNetType;        // 客户端的网络类型
+    4 optional bool             bAll = false;    // 是否需要下发所有接入点的ip
+};
+
+struct IPListRsp
+{
+    0 optional vector<JoinIPInfo>	vJoinIPInfo;  // 不同类型的接入点IP信息集合
+	1 optional string				sClientIp;	  // 客户端ip
+};
+
+interface Login
+{    
+    int login(LoginReq stLoginReq, out LoginRsp stLoginRsp);
+
+    int getIpList(IPListReq stIPListReq, out IPListRsp stIPListRsp);        
+
+    int getUserInfo(string sGuid, out TRomUserInfo_Cache stUserInfo);
+
+};
+
+}; 

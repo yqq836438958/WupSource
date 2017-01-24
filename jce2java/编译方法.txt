@@ -1,0 +1,5 @@
+工具采用gyp进行跨平台编译体系的构建，必须安装python
+
+1. mac和linux下，可以直接调用make.sh进行编译
+2. windows下安装cygwin, 在cygwin下安装gcc，g++，make工具，同时安装flex和bison(一定要是cygwin下的，否则路径会有问题)，
+ 然后调用make.sh在cygwin下进行编译

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="jar_docs_builder" basedir="." default="build_docs" >
+
+    <!--
+         这个build.xml是整个项目编译的入口，build_common.xml是具体的编译实现
+         （为了修改和删除代码，所以脚本会让实现的逻辑在temp空间内进行，而不影响正式的代码）
+    -->
+
+<property name="temp.doc.dir" value="temp_doc"/>
+<property name="temp.doc.src.dir" value="${temp.doc.dir}/temp_src"/>
+<property name="out_doc" value="${temp.doc.dir}/out_docs"/>
+<property name="in_src" value="./src"/>
+
+
+    <target name="build_docs">
+        <antcall target="init"></antcall>
+        <antcall target="createdoc"></antcall>
+     </target>
+
+    <target name="init">
+        <delete dir="${temp.doc.dir}" />
+        <mkdir dir="${temp.doc.dir}" />
+        <mkdir dir="${temp.doc.src.dir}" />
+        <mkdir dir="${out_doc}" />
+        <echo>${in_src}</echo>
+        <copy todir="${temp.doc.src.dir}" filtering="true">
+            <fileset dir="${in_src}">
+                 <!-- 排查测试代码 -->
+                <exclude name="/com/**" />
+                <!-- 排查配置文件  -->
+                <exclude name="/qrom/component/config/**" />
+                <include name="*qrom/component/wup/*.java" />
+                <exclude name="**/.svn/**" />
+                <exclude name="**/.settings/**" />
+                <exclude name="**/gen/**" />
+                <exclude name="**/.git/**" />
+                <exclude name="**/.idea/**" />
+                <exclude name="**/out/**" />
+                <exclude name="**/bin/**" />
+            </fileset>
+        </copy>
+    </target>
+ 
+    
+    <target name="createdoc">
+      <echo>src ${temp.doc.src.dir}  doc ${temp.doc.dir}</echo>
+      <javadoc destdir="${out_doc}" encoding="utf-8" docencoding="utf-8" charset="utf-8">
+       <packageset dir="${temp.doc.src.dir}">
+        <include name="**"/>
+       </packageset>
+      </javadoc>
+</target>
+    
+</project>

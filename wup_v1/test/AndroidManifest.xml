@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- package name must be unique so suffix with "tests" so package loader doesn't ignore us -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.tencent.qubewupbasis"
+          android:versionCode="1"
+          android:versionName="1.0">
+    <!-- We add an application tag here just so that we can indicate that
+         this package needs to link against the android.test library,
+         which is needed when building test cases. -->
+     <uses-permission android:name="android.permission.INTERNET" />
+     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    
+    <!-- push tcm需要的权限  -->
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
+    <uses-permission android:name="android.permission.READ_SYNC_STATS" />
+    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+
+    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS"/>
+
+    
+     <uses-sdk android:minSdkVersion="8" 
+         android:targetSdkVersion="14"/>
+    <application
+        android:name="com.example.wuptest.QubeWupTestApp"
+        android:label="wupBasis">
+        <meta-data android:name="tcm_proxy"  android:value="100"/>
+        <activity android:name="com.example.wuptest.QubeWupTestActivity" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity> 
+        
+        <provider
+            android:name="qrom.component.statistic.basic.QStatisticProvider"
+            android:authorities="com.tencent.qubewupbasis.rom.QStatisticRomProvider" />        
+
+        <provider 
+            android:name="qrom.component.wup.runInfo.QRomWupProvider"
+            android:authorities="com.tencent.qubewupbasis.wup.QRomProvider"
+            android:exported="true" />
+        
+        <service android:name="com.example.wuptest.TestService"
+            android:process=":wuptestService">
+            <intent-filter >
+                <action android:name="qrom.compoent.tcm.action.start"/>
+            </intent-filter>
+        </service>
+    </application>
+</manifest>
+

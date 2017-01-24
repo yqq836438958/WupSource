@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="jar_builder" basedir="." default="build">
+
+    <!-- 系统属性，请不要擅自修改 -->
+    <property environment="env"/>
+
+    <!-- 导入本地编译的参数build_local_properties文件 -->
+    <import file="build_local_properties.xml"/>
+
+    <property name="ws" value="${env.WORKSPACE}"/>                              <!-- 取服务器Woskspace路径 -->
+    <property name="isCI" value="false"/>                                       <!-- true表示服务器环境，false表示本地环境 -->
+    <available file="${ws}/build.xml" property="isCI"/>
+
+    <!-- 预置android sdk中自带的默认build文件中所需的参数 -->
+    <condition property="sdk.dir" value="${env.ANDROIDSDK_LINUX_R19}" else="${sdk.local.dir}">
+        <!-- 是否服务器构建 -->
+        <istrue value="${isCI}"/>
+    </condition>
+
+    <!-- SDK所在的分支, 本地编译为NONE不区分, 如果服务器编译环境没有配置配置SDK_BRANCH参数则打包后${env.SDK_BRANCH}无实际意义 -->
+    <condition property="sdk.branch" value="${env.SDK_BRANCH}" else="NONE">
+        <istrue value="${isCI}"/>
+    </condition>
+
+    <property name="project.is.library" value="true"/>
+
+    <!-- 导入android sdk中自带的默认build文件 -->
+    <import file="${sdk.dir}/tools/ant/build.xml"/>
+
+    <!-- 导入工程描述文件 -->
+    <property file="project.properties"/>
+
+    <!-- 设置proguard混淆描述文件 -->
+    <property name="proguard.config" location="proguard.cfg"/>
+
+    <!-- 按照规范，指定输出的文件名 -->
+    <property name="output.file.build.basename" value="qrom_component_wup"/>
+
+    <target name="build">
+        <antcall target="clean"/>
+        <antcall target="release"/>
+    </target>
+
+    <target name="build_debug">
+        <antcall target="clean"/>
+        <antcall target="debug"/>
+    </target>
+
+    <!--
+      *  implement task name="-pre-compile"
+      *  删除UI测试代码和日志配置代码
+      -->
+    <target name="-pre-compile">
+        <delete includeemptydirs="true" dir="${source.absolute.dir}">
+            <exclude name="**/qrom/component/wup/**"/>
+            <exclude name="**/TRom/**"/>
+        </delete>
+    </target>
+
+    <!--
+      *  implement task name="-post-compile"
+      -->
+    <target name="-post-compile">
+        <if condition="${proguard.enabled}">
+            <!--
+                 如果要混淆代码，就要配置对应的 -injars 和 -libraryjars 参数
+                 （下面的模板，分别是配置-injars和-libraryjars的代码块）
+            -->
+            <then>
+                <path id="project.all.jars.path.temp" refid="project.all.jars.path"/>
+                <path id="project.all.jars.path">
+                    <!-- 所有的需要打包进jar的library, 在-injars中全部列举出来 -->
+                    <pathelement location="libs/codec.jar"/>
+                    <pathelement location="libs/security.jar"/>
+                </path>
+
+                <path id="project.target.class.path.temp">
+                    <pathelement location="${toString:project.target.class.path}"/>
+                </path>
+                <path id="project.target.class.path">
+                    <path refid="project.target.class.path.temp"/>
+                    <!-- 所有的不需要打包进jar的library, 在-libraryjars全部列举出来 -->
+                    <pathelement location="libs/wup-1.0.0-SNAPSHOT.jar"/>
+                    <pathelement location="libs/qrom_component_log.jar"/>
+                </path>
+            </then>
+        </if>
+    </target>
+
+    <!--
+      *  implement task name="-post-build"
+      *  在build完成后，对生成的jar包重命名
+      -->
+    <target name="-post-build">
+
+        <!-- 会把jar文件的build时间加入MANIFEST.MF文件，方便回溯 -->
+        <tstamp>
+            <format property="jar.file.build.date" pattern="yyyy-MM-dd HH:mm:ss"/>
+        </tstamp>
+        <condition property="jar.file.build.no" value="${env.BuildNo}" else="${env.COMPUTERNAME}">
+            <isset property="env.BuildNo"/>
+        </condition>
+
+        <if condition="${proguard.enabled}">
+            <then>
+                <!-- 如果是release模式，从混淆文件夹中抓取jar -->
+                <move file="${obfuscated.jar.file}"
+                      tofile="${out.absolute.dir}/${output.file.build.basename}.jar"/>
+                <move file="${obfuscate.absolute.dir}/mapping.txt"
+                      tofile="${out.absolute.dir}/${output.file.build.basename}_mapping.txt"/>
+
+                <jar destfile="${out.absolute.dir}/${output.file.build.basename}.jar" update="true" includes="**/*.class">
+                    <zipfileset src="${out.absolute.dir}/${output.file.build.basename}.jar"/>
+                    <manifest>
+                        <attribute name="Build-Date" value="${jar.file.build.date}"/>
+                        <attribute name="Build-No" value="${jar.file.build.no}"/>
+                        <attribute name="Build-Mode" value="release"/>
+                        <attribute name="Class-Path" value="wup-1.0.0-SNAPSHOT.jar qrom_component_log.jar"/>
+                        <attribute name="SDK-BRANCH" value="${sdk.branch}"/>
+                    </manifest>
+                </jar>
+            </then>
+            <else>
+                <!-- 如果是debug模式，从out文件夹中抓取 -->
+                <move file="${out.library.jar.file}"
+                      tofile="${out.absolute.dir}/${output.file.build.basename}.jar"/>
+
+                <jar destfile="${out.absolute.dir}/${output.file.build.basename}.jar" update="true" includes="**/*.class">
+                    <zipfileset src="${out.absolute.dir}/${output.file.build.basename}.jar"/>
+                    <zipfileset src="libs/codec.jar"/>
+                    <zipfileset src="libs/security.jar"/>
+                    <manifest>
+                        <attribute name="Build-Date" value="${jar.file.build.date}"/>
+                        <attribute name="Build-No" value="${jar.file.build.no}"/>
+                        <attribute name="Build-Mode" value="debug"/>
+                        <attribute name="Class-Path" value="wup-1.0.0-SNAPSHOT.jar qrom_component_log.jar"/>
+                        <attribute name="SDK-BRANCH" value="${sdk.branch}"/>
+                    </manifest>
+                </jar>
+            </else>
+        </if>
+
+        <echo>删除多余的文件 ...</echo>
+        <delete includeemptydirs="true" dir="${out.absolute.dir}"
+                excludes="**/${output.file.build.basename}*/** ${output.file.build.basename}*"/>
+    </target>
+
+</project>

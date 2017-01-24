@@ -1,0 +1,34 @@
+
+module TRom
+{
+
+struct GetKobeReq
+{
+    0 require   int                 iId;
+    1 require   string              sName;
+};
+
+struct KobeInfo
+{
+    0 require   int                 iId;
+    1 require   string              sName;
+    2 require   byte                sMale;
+    3 optional  vector<string>      vFavoriteList;
+    4 optional  map<int, string>    mHistory;
+};
+
+struct GetKobeRsp
+{
+    0 optional  int                 iRet;
+    1 optional  string              sInfos;  
+    2 optional  KobeInfo            stKoby;
+    3 optional  vector<KobeInfo>    vKobyList;
+    4 optional  map<int, KobeInfo>  mKobys;
+};
+
+interface KobeshyTest
+{
+    int getKobe(GetKobeReq req, out GetKobeRsp rsp);
+};
+
+}; 

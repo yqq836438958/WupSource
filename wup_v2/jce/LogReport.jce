@@ -1,0 +1,69 @@
+#include "/home/tafjce/TRom/TRomComm/TRomComm.jce"
+
+module TRom
+{
+	// 日志上报返回码
+	enum ELogReportRetCode
+	{
+		E_REPORT_SUCC = 0,				// 上报成功
+		E_REPORT_INVALID_BUSS = -1,		// 非法业务
+		E_REPORT_INVALID_MODULE = -2,	// 非法模块
+		E_REPORT_INVALID_PARAM = -3,	// 非法参数
+		E_REPORT_INVALID_CALL = -4,		// 非法调用
+		E_REPORT_INVALID_TICKET = -5,	// 非法ticket
+		E_REPORT_SVR_ERR = -99			// 后台错误
+	};	
+	
+	// ticket校验返回码
+	enum ECheckTicketRetCode
+	{
+		E_TICKET_SUCC = 0,				// 成功
+		E_TICKET_EMPTY = -1,			// ticket为空
+		E_TICKET_DECRYPT_ERR = -2,		// ticket解密失败
+		E_TICKET_FORMAT_ERR = -3,		// ticket格式错误
+		E_TICKET_GUID_ERR = -4,			// ticket中解析GUID与校验GUID不是同一个GUID
+		E_TICKET_EXPIRE = -5,			// ticket过期
+		E_TICKET_FREQ_LIMITED = -6,		// 请求过于频繁
+	};
+	
+	// 上报数据请求
+    struct ReportLogReq
+    {
+        0 optional RomBaseInfo  stRomBaseInfo;     	// rom基本信息
+        1 optional string sBussName = "default"; 	// 业务名
+		2 optional int iErrCode;					// 错误码
+		3 optional string sErrMsg;					// 错误码描述。若业务不想配置错误码对应错误消息，则可自行上报错误消息。包含中文时，统一用UTF-8编码。
+		4 optional vector<byte> vData;         		// 文件内容。业务最好先压缩再上传
+    };	
+	
+	// 上报数据响应
+    struct ReportLogRsp
+    {
+        0 optional int iRetCode;  	// 返回码，取值ELogReportRetCode
+    };
+    
+    // 获取ticket请求
+    struct GetTicketReq
+    {
+    	0 optional RomBaseInfo stRomBaseInfo;     	// rom基本信息
+    };
+    
+    // 获取ticket响应
+    struct GetTicketRsp
+    {
+    	0 optional string sTicket;
+    };
+	
+	interface LogReport
+	{
+		/*
+         * @brief: 上报错误日志
+         */
+        int reportLog(ReportLogReq req, out ReportLogRsp rsp);
+        
+        /*
+         * @brief: 获取ticket
+         */
+        int getTicket(GetTicketReq req, out GetTicketRsp rsp);
+	};
+};

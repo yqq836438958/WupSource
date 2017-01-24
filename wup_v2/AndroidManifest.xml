@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- package name must be unique so suffix with "tests" so package loader doesn't ignore us -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.tencent.qrom.wup2"
+          android:versionCode="1"
+          android:versionName="1.0">
+     <uses-sdk android:minSdkVersion="8" 
+         android:targetSdkVersion="14"/>
+		 
+    <application
+        android:label="wupBasis2">
+    </application>
+</manifest>

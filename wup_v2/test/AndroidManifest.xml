@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.tencent.qrom.wup.test"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="8"
+        android:targetSdkVersion="18" />
+    
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <application
+        android:allowBackup="true"
+        android:name=".TApplication"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/app_name" >
+           
+        </activity>
+        
+        <activity 
+            android:name=".HttpSessionTestActivity">
+        </activity>
+        
+        <activity
+            android:name=".DispatcherTestActivity" >
+        </activity>
+        
+        <activity
+            android:name=".GuidTestActivity" >
+            
+        </activity>
+        
+        <activity 
+            android:name=".IPListFetcherTestActivity">
+        </activity>
+        
+        <activity 
+            android:name=".APIV2TestActivity">
+             <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        
+        <activity 
+            android:name=".IPListEngineTestActivity">
+        </activity>
+        
+        <activity 
+            android:name=".EventBusTestActivity">
+        </activity>
+        
+        <provider
+                android:name="qrom.component.statistic.basic.QStatisticProvider"
+                android:authorities="com.tencent.qrom.wup.test.rom.QStatisticRomProvider"
+                android:exported="true"
+        />
+        
+        <!-- wup provider -->
+        <provider
+            android:name="qrom.component.wup.runInfo.QRomWupProvider"
+            android:authorities="com.tencent.qrom.wup.test.wup.QRomProvider"
+            android:process=":wup"
+             />
+        
+    </application>
+
+</manifest>
